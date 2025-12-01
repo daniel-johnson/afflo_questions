@@ -29,16 +29,13 @@
 
   A match is considered "rejected" if:
   - ANY antigen test result is marked "positive" for both the patient and the donor test results
-=end
+
+# moved the example data to the spec file.
+
+Write a function to take these two data sets in, and determine if the match is recommended,
+viable with warnings, or not recommended.
 
 
-### moved the example data to the spec file.
-
-
-# Write a function to take these two data sets in, and determine if the match is recommended,
-# viable with warnings, or not recommended.
-
-=begin
 ==============================================================================================
 Daniel's note:
   This was the most interesting by far! And I imagine it's a simplified case of part of
@@ -53,11 +50,7 @@ Daniel's note:
   TODO constantize strings used internally as state, so typos
   give errors. Now that frozen_string_literal is turned on by default, it doesn't effect
   performance though.
-
-  In line 26, for the "viable with warnings" case, I assume that's a typo and it was meant to be:
-  "The patient is not marked << NEGATIVE >> for ANY antigen that the donor organ is also marked
-    "positive" for"
------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------
 =end
 
 class RecommendationService
@@ -72,7 +65,11 @@ class RecommendationService
         when "positive"
           cumulative[antigen[:antigen]] = "positive"
         when "negative"
-          cumulative[antigen[:antigen]] ||= "negative"
+          if cumulative[antigen[:antigen]] != "negative"
+            cumulative[antigen[:antigen]] ||= "negative"
+          end
+        when "indeterminate"
+          cumulative[antigen[:antigen]] ||= "indeterminate"
         end
       end
     end
@@ -90,8 +87,8 @@ class RecommendationService
         break
       end
 
-      if (donor_antigen[:result] != "negative" && cumulative[donor_antigen[:antigen]] == "positive") ||
-        (donor_antigen[:result] == "positive" && cumulative[donor_antigen[:antigen]] != "negative")
+      if (donor_antigen[:result] == "indeterminate" && cumulative[donor_antigen[:antigen]] == "positive") ||
+        (donor_antigen[:result] == "positive" && cumulative[donor_antigen[:antigen]] == "indeterminate")
 
         result = "viable with warnings"
         next

@@ -47,15 +47,8 @@ negative_patient = [
 indeterminate_patient = [
   {
     "donor_id": 111503,
-    "test_results": [{
-        "antigen": "A2",
-        "result": "negative"
-      }
-    ]
-  }, 
-  {
-    "donor_id": 111503,
-    "test_results": [{
+    "test_results": [
+      {
         "antigen": "A1",
         "result": "indeterminate"
       }
@@ -89,24 +82,6 @@ indeterminate_donor = {
     }
   ]
 }
-
-donor_positive_different_antigen = {
-  "donor_id": 982745,
-  "test_results": [{
-      "antigen": "A2",
-      "result": "positive"
-    }
-  ]
-}
-
-# donor_negative_different_antigen = {
-#   "donor_id": 982745,
-#   "test_results": [{
-#       "antigen": "A2",
-#       "result": "negative"
-#     }
-#   ]
-# }
 
 # I wrapped the patient results hashes in an array, it wasn't in the pdf.
 example_patient = [
@@ -300,19 +275,13 @@ RSpec.describe RecommendationService do
       ).to eq("rejected")
     end
 
-    it 'returns "viable with warnings" when donor is positive for antigen that patient is "inderminate" for' do
+    it 'returns "viable with warnings" when donor is positive for antigen that patient is inderminate for' do
       expect(
         RecommendationService.recommendation_status(positive_donor, indeterminate_patient)
       ).to eq("viable with warnings")
     end
 
-    it 'returns "viable with warnings" when donor is positive for antigen that patient is not "negative" for' do
-      expect(
-        RecommendationService.recommendation_status(positive_donor, indeterminate_patient)
-      ).to eq("viable with warnings")
-    end
-
-    it 'returns "viable with warnings" when donor is not marked "negative" for antigen that patient is "positive" for' do
+    it 'returns "viable with warnings" when donor is inderminate for antigen that patient is positive for' do
       expect(
         RecommendationService.recommendation_status(indeterminate_donor, positive_patient)
       ).to eq("viable with warnings")
